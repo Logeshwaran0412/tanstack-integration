@@ -1,0 +1,78 @@
+'use client';
+
+import { useState } from 'react';
+import { useTodos } from '../hooks/useTodos';
+
+const TodoList = () => {
+    const [newTodo, setNewTodo] = useState('');
+    const { todos, addTodo, toggleTodo, deleteTodo, isLoading, isLoadingTodos } = useTodos();
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (newTodo.trim()) {
+            addTodo(newTodo);
+            setNewTodo('');
+        }
+    };
+
+    if (isLoadingTodos) {
+        return (
+            <div className="flex justify-center items-center min-h-[200px]">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-md mx-auto">
+            <form onSubmit={handleSubmit} className="mb-8">
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        value={newTodo}
+                        onChange={(e) => setNewTodo(e.target.value)}
+                        placeholder="Enter a new todo..."
+                        className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                    />
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+                    >
+                        Add Todo
+                    </button>
+                </div>
+            </form>
+
+            <div className="space-y-2">
+                {todos.map((todo) => (
+                    <div
+                        key={todo.id}
+                        className="flex items-center gap-2 p-4 border rounded-lg"
+                    >
+                        <input
+                            type="checkbox"
+                            checked={todo.completed}
+                            onChange={() => toggleTodo(todo.id)}
+                            className="h-5 w-5"
+                        />
+                        <span
+                            className={`flex-1 text-white ${todo.completed ? 'line-through ' : ''
+                                }`}
+                        >
+                            {todo.title}
+                        </span>
+                        <button
+                            onClick={() => deleteTodo(todo.id)}
+                            className="px-2 py-1 text-red-500 hover:text-red-700"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default TodoList; 

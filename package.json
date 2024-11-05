@@ -2,14 +2,20 @@
   "name": "tanstack-integration",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:server": "node server.js"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.59.19",
+    "@tanstack/react-query-devtools": "^5.59.19",
+    "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
     "next": "15.0.2",
     "react": "19.0.0-rc-02c0e824-20241028",
     "react-dom": "19.0.0-rc-02c0e824-20241028"

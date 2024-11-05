@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import localFont from "next/font/local";
 import "./globals.css";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         <QueryClientProvider client={queryClient}>
           {children}
+          <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
 
         </QueryClientProvider>
       </body>
