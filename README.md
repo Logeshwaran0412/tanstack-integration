@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Todo Application with Next.js and Express
+
+This is a full-stack Todo application built with Next.js for the frontend and Express for the backend. The application features real-time updates, todo management, and a coffee showcase section.
+
+## Features
+
+- Create, Read, Update, and Delete todos
+- Mark todos as complete/incomplete
+- View detailed todo information
+- Edit todo titles
+- Coffee showcase section
+- Real-time updates using TanStack Query
+
+## Tech Stack
+
+### Frontend
+
+- Next.js 14
+- React
+- TypeScript
+- TanStack Query (React Query)
+- Axios
+- Tailwind CSS
+
+### Backend
+
+- Express
+- Node.js
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm
+- yarn
+
+### Installation
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This will start the Next.js application on http://localhost:3000
 
-## Learn More
+## Available Scripts
 
-To learn more about Next.js, take a look at the following resources:
+### Backend Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `npm run dev:server` - Starts the Express server in development mode
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Frontend Scripts
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `yarn dev` - Starts the Next.js development server
+- `yarn build` - Builds the application for production
+- `yarn start` - Starts the production server
+- `yarn lint` - Runs ESLint for code linting

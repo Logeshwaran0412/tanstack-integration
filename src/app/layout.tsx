@@ -32,7 +32,7 @@ export default function RootLayout({
       >
         <QueryClientProvider client={queryClient}>
           {children}
-          <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+          <ReactQueryDevtools initialIsOpen={false} />
 
         </QueryClientProvider>
       </body>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTodos } from '../hooks/useTodos';
+import Link from 'next/link';
 
 const TodoList = () => {
     const [newTodo, setNewTodo] = useState('');
@@ -56,12 +57,14 @@ const TodoList = () => {
                             onChange={() => toggleTodo(todo.id)}
                             className="h-5 w-5"
                         />
-                        <span
-                            className={`flex-1 text-white ${todo.completed ? 'line-through ' : ''
-                                }`}
-                        >
-                            {todo.title}
-                        </span>
+                        <Link href={`/todo/${todo.id}`} className="flex-1">
+                            <span
+                                className={`flex-1 text-white cursor-pointer hover:text-blue-300 ${todo.completed ? 'line-through' : ''
+                                    }`}
+                            >
+                                {todo.title}
+                            </span>
+                        </Link>
                         <button
                             onClick={() => deleteTodo(todo.id)}
                             className="px-2 py-1 text-red-500 hover:text-red-700"
@@ -71,7 +74,8 @@ const TodoList = () => {
                     </div>
                 ))}
             </div>
-        </div>
+
+        </div >
     );
 };
 

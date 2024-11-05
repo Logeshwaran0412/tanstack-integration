@@ -9,6 +9,11 @@ export const todoApi = {
         return data;
     },
 
+    getTodoById: async (id: number): Promise<Todo> => {
+        const { data } = await axios.get(`${BASE_URL}/todos/${id}`);
+        return data;
+    },
+
     addTodo: async (text: string): Promise<Todo> => {
         const { data } = await axios.post(`${BASE_URL}/todos`, {
             title: text,
@@ -17,10 +22,8 @@ export const todoApi = {
         return data;
     },
 
-    updateTodo: async (id: number, completed: boolean): Promise<Todo> => {
-        const { data } = await axios.put(`${BASE_URL}/todos/${id}`, {
-            completed,
-        });
+    updateTodo: async (id: number, updates: Partial<Todo>): Promise<Todo> => {
+        const { data } = await axios.put(`${BASE_URL}/todos/${id}`, updates);
         return data;
     },
 
