@@ -15,8 +15,10 @@ export const useTodos = () => {
         mutationFn: async (text: string) => {
             return await todoApi.addTodo(text);
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['todos'] });
+        onSuccess: (data) => {
+            queryClient.setQueryData(['todos'], (oldTodos: Todo[]) => {
+                return [...oldTodos, data];
+            });
         },
     });
 
@@ -26,8 +28,15 @@ export const useTodos = () => {
             if (!todo) throw new Error('Todo not found');
             return await todoApi.updateTodo(id, { completed: !todo.completed });
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['todos'] });
+        onSuccess: (updatedTodo) => {
+
+            queryClient.setQueryData(['todos'], (oldTodos: Todo[]) => {
+                return oldTodos.map(todo =>
+                    todo.id === updatedTodo.id ? updatedTodo : todo
+                );
+            });
+
+            queryClient.setQueryData(['todo', updatedTodo.id.toString()], updatedTodo);
         },
     });
 
@@ -35,8 +44,13 @@ export const useTodos = () => {
         mutationFn: async ({ id, updates }: { id: number; updates: Partial<Todo> }) => {
             return await todoApi.updateTodo(id, updates);
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['todos'] });
+        onSuccess: (updatedTodo) => {
+            queryClient.setQueryData(['todos'], (oldTodos: Todo[]) => {
+                return oldTodos.map(todo =>
+                    todo.id === updatedTodo.id ? updatedTodo : todo
+                );
+            });
+            queryClient.setQueryData(['todo', updatedTodo.id], updatedTodo);
         },
     });
 
@@ -44,8 +58,11 @@ export const useTodos = () => {
         mutationFn: async (id: number) => {
             return await todoApi.deleteTodo(id);
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['todos'] });
+        onSuccess: (_, deletedId) => {
+            queryClient.setQueryData(['todos'], (oldTodos: Todo[]) => {
+                return oldTodos.filter(todo => todo.id !== deletedId);
+            });
+            queryClient.removeQueries({ queryKey: ['todo', deletedId] });
         },
     });
 

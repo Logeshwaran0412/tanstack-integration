@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTodoById } from '../hooks/useTodos';
 import { todoApi } from '../services/todoApi';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Todo } from '@/types/todo';
 
 interface TodoDetailProps {
     todoId: number;
@@ -19,9 +20,13 @@ const TodoDetail = ({ todoId }: TodoDetailProps) => {
         mutationFn: async (newTitle: string) => {
             return await todoApi.updateTodo(todoId, { title: newTitle });
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['todos'] });
-            queryClient.invalidateQueries({ queryKey: ['todo', todoId] });
+        onSuccess: (_, newTitle) => {
+            queryClient.setQueryData(['todo', todoId.toString()], { ...todo, title: newTitle });
+            queryClient.setQueryData(['todos'], (oldTodos: Todo[]) => {
+                return oldTodos.map(todo =>
+                    todo.id === todoId ? { ...todo, title: newTitle } : todo
+                );
+            });
             setIsEditing(false);
         },
     });
