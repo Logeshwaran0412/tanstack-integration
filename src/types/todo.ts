@@ -6,4 +6,6 @@ export interface Todo {
         id: number,
         text: string
     }
-} 
+}
+
+export type TodoFilter = 'all' | 'open' | 'done'

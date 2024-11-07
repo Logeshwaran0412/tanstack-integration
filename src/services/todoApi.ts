@@ -3,9 +3,11 @@ import { Todo } from '../types/todo';
 
 const BASE_URL = 'http://localhost:3001/api';
 
+type TodoFilter = 'all' | 'open' | 'done';
+
 export const todoApi = {
-    getTodos: async (): Promise<Todo[]> => {
-        const { data } = await axios.get(`${BASE_URL}/todos`);
+    getTodos: async (filter: TodoFilter = 'all'): Promise<Todo[]> => {
+        const { data } = await axios.get(`${BASE_URL}/todos?filter=${filter}`);
         return data;
     },
 

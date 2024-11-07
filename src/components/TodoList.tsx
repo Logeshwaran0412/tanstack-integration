@@ -6,7 +6,8 @@ import Link from 'next/link';
 
 const TodoList = () => {
     const [newTodo, setNewTodo] = useState('');
-    const { todos, addTodo, toggleTodo, deleteTodo, isLoading, isLoadingTodos } = useTodos();
+    const [filter, setFilter] = useState<'all' | 'open' | 'done'>('all');
+    const { todos, addTodo, toggleTodo, deleteTodo, isLoading, isLoadingTodos, errorTodos } = useTodos(filter);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -24,8 +25,24 @@ const TodoList = () => {
         );
     }
 
+    if (errorTodos) {
+        return <div>Error: {errorTodos.message}</div>;
+    }
+
     return (
         <div className="max-w-md mx-auto">
+            <div className="mb-4">
+                <select
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value as 'all' | 'open' | 'done')}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                >
+                    <option value="all">All Todos</option>
+                    <option value="open">Open Todos</option>
+                    <option value="done">Completed Todos</option>
+                </select>
+            </div>
+
             <form onSubmit={handleSubmit} className="mb-8">
                 <div className="flex gap-2">
                     <input

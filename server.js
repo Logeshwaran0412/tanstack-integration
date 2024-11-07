@@ -18,8 +18,23 @@ app.prepare().then(() => {
   server.use(cors());
   // Define your Express routes for the to-do app
   server.get("/api/todos", (req, res) => {
-    console.log("getting todos");
-    res.json(todos);
+    const filter = req.query.filter || "all";
+    let filteredTodos = [...todos];
+
+    switch (filter) {
+      case "open":
+        filteredTodos = todos.filter((todo) => !todo.completed);
+        break;
+      case "done":
+        filteredTodos = todos.filter((todo) => todo.completed);
+        break;
+      default: // 'all'
+        // Return all todos, no filtering needed
+        break;
+    }
+
+    console.log(`getting todos with filter: ${filter}`);
+    res.json(filteredTodos);
   });
 
   server.post("/api/todos", (req, res) => {
@@ -60,7 +75,7 @@ app.prepare().then(() => {
 
   server.delete("/api/todos/:id", (req, res) => {
     todos = todos.filter((todo) => todo.id !== parseInt(req.params.id));
-    res.status(204).send();
+    res.status(200).json({ message: "Todo deleted" });
   });
 
   // Handle all other requests by Next.js

@@ -2,12 +2,20 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { todoApi } from '../services/todoApi';
 import { Todo } from '../types/todo';
 
-export const useTodos = () => {
+const todoKeys = {
+    all: ['todos'] as const,
+    lists: () => [...todoKeys.all, 'list'] as const,
+    list: (filters: string) => [...todoKeys.lists(), { filters }] as const,
+    details: () => [...todoKeys.all, 'detail'] as const,
+    detail: (id: number) => [...todoKeys.details(), id] as const,
+}
+
+export const useTodos = (filter: 'all' | 'open' | 'done' = 'all') => {
     const queryClient = useQueryClient();
 
-    const { data: todos = [], isLoading: isLoadingTodos } = useQuery({
-        queryKey: ['todos'],
-        queryFn: todoApi.getTodos,
+    const { data: todos = [], isLoading: isLoadingTodos, error: errorTodos } = useQuery({
+        queryKey: todoKeys.list(filter),
+        queryFn: () => todoApi.getTodos(filter),
         staleTime: 1000 * 60 * 5,
     });
 
@@ -16,9 +24,15 @@ export const useTodos = () => {
             return await todoApi.addTodo(text);
         },
         onSuccess: (data) => {
-            queryClient.setQueryData(['todos'], (oldTodos: Todo[]) => {
+
+            // ✅ update the list we are currently on
+            queryClient.setQueryData(todoKeys.list(filter), (oldTodos: Todo[]) => {
                 return [...oldTodos, data];
             });
+
+            // 🥳 invalidate all the lists,
+            // but don't refetch the active one
+            queryClient.invalidateQueries({ queryKey: todoKeys.lists(), refetchType: 'none' });
         },
     });
 
@@ -29,14 +43,14 @@ export const useTodos = () => {
             return await todoApi.updateTodo(id, { completed: !todo.completed });
         },
         onSuccess: (updatedTodo) => {
-
-            queryClient.setQueryData(['todos'], (oldTodos: Todo[]) => {
+            queryClient.setQueryData(todoKeys.list(filter), (oldTodos: Todo[]) => {
                 return oldTodos.map(todo =>
                     todo.id === updatedTodo.id ? updatedTodo : todo
                 );
             });
 
-            queryClient.setQueryData(['todo', updatedTodo.id.toString()], updatedTodo);
+            queryClient.invalidateQueries({ queryKey: todoKeys.lists(), refetchType: 'none' });
+            queryClient.setQueryData(todoKeys.detail(updatedTodo.id), updatedTodo);
         },
     });
 
@@ -45,12 +59,14 @@ export const useTodos = () => {
             return await todoApi.updateTodo(id, updates);
         },
         onSuccess: (updatedTodo) => {
-            queryClient.setQueryData(['todos'], (oldTodos: Todo[]) => {
+            queryClient.setQueryData(todoKeys.list(filter), (oldTodos: Todo[]) => {
                 return oldTodos.map(todo =>
                     todo.id === updatedTodo.id ? updatedTodo : todo
                 );
             });
-            queryClient.setQueryData(['todo', updatedTodo.id], updatedTodo);
+
+            queryClient.invalidateQueries({ queryKey: todoKeys.lists(), refetchType: 'none' });
+            queryClient.setQueryData(todoKeys.detail(updatedTodo.id), updatedTodo);
         },
     });
 
@@ -59,16 +75,19 @@ export const useTodos = () => {
             return await todoApi.deleteTodo(id);
         },
         onSuccess: (_, deletedId) => {
-            queryClient.setQueryData(['todos'], (oldTodos: Todo[]) => {
+            queryClient.setQueryData(todoKeys.list(filter), (oldTodos: Todo[]) => {
                 return oldTodos.filter(todo => todo.id !== deletedId);
             });
-            queryClient.removeQueries({ queryKey: ['todo', deletedId] });
+
+            queryClient.invalidateQueries({ queryKey: todoKeys.lists(), refetchType: 'none' });
+            queryClient.removeQueries({ queryKey: todoKeys.detail(deletedId) });
         },
     });
 
     return {
         todos,
         isLoadingTodos,
+        errorTodos,
         addTodo: addTodoMutation.mutate,
         toggleTodo: toggleTodoMutation.mutate,
         updateTodo: updateTodoMutation.mutate,

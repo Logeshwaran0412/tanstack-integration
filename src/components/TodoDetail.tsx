@@ -1,35 +1,35 @@
 'use client';
 
 import { useState } from 'react';
-import { useTodoById } from '../hooks/useTodos';
-import { todoApi } from '../services/todoApi';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Todo } from '@/types/todo';
+import { useTodoById, useTodos } from '../hooks/useTodos';
 
 interface TodoDetailProps {
     todoId: number;
+    onClose: () => void;
 }
 
-const TodoDetail = ({ todoId }: TodoDetailProps) => {
+const TodoDetail = ({ todoId, onClose }: TodoDetailProps) => {
     const { data: todo, isLoading } = useTodoById(todoId);
+    const { updateTodo } = useTodos();
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(todo?.title || '');
-    const queryClient = useQueryClient();
 
-    const updateMutation = useMutation({
-        mutationFn: async (newTitle: string) => {
-            return await todoApi.updateTodo(todoId, { title: newTitle });
-        },
-        onSuccess: (_, newTitle) => {
-            queryClient.setQueryData(['todo', todoId.toString()], { ...todo, title: newTitle });
-            queryClient.setQueryData(['todos'], (oldTodos: Todo[]) => {
-                return oldTodos.map(todo =>
-                    todo.id === todoId ? { ...todo, title: newTitle } : todo
-                );
-            });
-            setIsEditing(false);
-        },
-    });
+    const handleUpdate = () => {
+        if (todo) {
+            updateTodo(
+                { id: todo.id, updates: { title } },
+                {
+                    onSuccess: () => {
+                        setIsEditing(false);
+                    },
+                    onError: (error) => {
+                        console.error('Failed to update todo:', error);
+                        alert('Failed to update todo. Please try again.');
+                    },
+                }
+            );
+        }
+    };
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -44,17 +44,16 @@ const TodoDetail = ({ todoId }: TodoDetailProps) => {
             <div className="bg-white rounded-lg p-6 max-w-md w-full">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold text-black">Todo Details</h2>
-
+                    <button
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-gray-700"
+                    >
+                        ✕
+                    </button>
                 </div>
 
                 {isEditing ? (
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            updateMutation.mutate(title);
-                        }}
-                        className="space-y-4"
-                    >
+                    <div className="space-y-4">
                         <input
                             type="text"
                             value={title}
@@ -70,13 +69,14 @@ const TodoDetail = ({ todoId }: TodoDetailProps) => {
                                 Cancel
                             </button>
                             <button
-                                type="submit"
+                                type="button"
+                                onClick={handleUpdate}
                                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                             >
                                 Save
                             </button>
                         </div>
-                    </form>
+                    </div>
                 ) : (
                     <div className="space-y-4">
                         <p className="text-black">{todo.title}</p>
